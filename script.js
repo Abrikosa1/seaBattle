@@ -9,25 +9,83 @@ const record = document.getElementById('record'),
       header = document.querySelector('.header');
 
 const game = {
-    ships:[
-        {
-            location: ['26', '36', '46', '56'],
-            hit: ['', '', '', '']
-        },
-        {
-            location: ['11', '12', '13'],
-            hit: ['', '', '']
-        },
-        {
-            location: ['69', '79'],
-            hit: ['', '']
-        },
-        {
-            location: ['32'],
-            hit: ['']            
+    ships: [],
+    shipCount: 0,
+    optionShip: {
+        count: [1, 2, 3, 4],
+        size: [4, 3, 2, 1]
+    },
+    collision: new Set(), //создание коллекции
+    generateShip() {
+        for (let i = 0; i < this.optionShip.count.length; i++) {
+            for (let j = 0; j < this.optionShip.count[i]; j++){
+                const size = this.optionShip.size[i];
+                const ship = this.generateOptionsShip(size);
+                this.ships.push(ship);
+                this.shipCount++;
+            }
         }
-    ],
-    shipCount: 4,
+    },
+    generateOptionsShip(shipSize) {
+        const ship = {
+            hit: [],
+            location: [],
+        };
+        const halfProbability = 0.5;
+        const cells = 10;
+        const direction = Math.random() < halfProbability;
+        let x, y;
+
+        if(direction){
+            x = Math.floor(Math.random() * cells);
+            y = Math.floor(Math.random() * (cells - shipSize));
+        } else {
+            x = Math.floor(Math.random() * (cells - shipSize));
+            y = Math.floor(Math.random() * cells);
+        }
+
+        for(let i = 0; i < shipSize; i++){
+            if (direction){
+                ship.location.push(x + '' + (y + i));
+            } else {
+                ship.location.push((x + i) + '' + y);
+            }
+            ship.hit.push('');
+        }
+
+        if (this.checkCollision(ship.location)) {
+            return this.generateOptionsShip(shipSize);
+        }
+
+        this.addCollision(ship.location);
+
+        return ship;
+    },
+    checkCollision(location) {
+        for (const coord of location){
+            if (this.collision.has(coord)){ //в коллекциях has заменяет includes 
+                return true;
+            }
+        }
+    },
+    addCollision(location) {
+        const coordCells = 3,
+              cells = 10;
+        for (let i = 0; i < location.length; i++) {
+            const startCoordX = location[i][0] - 1;
+            for (let j= startCoordX; j < startCoordX + coordCells; j++) {
+                const startCoordY = location[i][1] - 1;
+                for (let z = startCoordY; z < startCoordY + coordCells; z++) {
+                    if (j >= 0 && j < cells && z >= 0 && z < cells){
+                        const coord = j + '' + z;
+                            this.collision.add(coord); //свойство коллекции add вместо push 
+                    }
+
+
+                }
+            }
+        }
+    }
 };
 
 const play = {
@@ -106,9 +164,21 @@ const fire = () => {
 const init = () => {
     enemy.addEventListener('click', fire);
     play.render();
-
+    game.generateShip();
     again.addEventListener('click', () => {
-        location.reload();
+        play.shot = 0;
+        play.hit = 0;
+        play.dead = 0;
+        game.shipCount = 0;
+        game.ships.length = 0;
+        play.render();
+        init();
+    });
+
+    record.addEventListener('dblclick', () => {
+        localStorage.clear();
+        play.record = 0;
+        play.render();
     });
 };
 
