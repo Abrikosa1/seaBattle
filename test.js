@@ -27,3 +27,15 @@ let inc = new Inc();
 alert(inc);
 alert(inc);
 alert(inc + inc);
+
+/* 
+play.shot = 0;
+play.hit = 0;
+play.dead = 0;
+game.collision = [];
+game.ships = [];
+game.shipCount = 0;
+for (let a of document.querySelectorAll('td')){
+    a.className = '';
+}
+play.render(); */

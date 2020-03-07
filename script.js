@@ -166,13 +166,7 @@ const init = () => {
     play.render();
     game.generateShip();
     again.addEventListener('click', () => {
-        play.shot = 0;
-        play.hit = 0;
-        play.dead = 0;
-        game.shipCount = 0;
-        game.ships.length = 0;
-        play.render();
-        init();
+        location.reload();
     });
 
     record.addEventListener('dblclick', () => {
